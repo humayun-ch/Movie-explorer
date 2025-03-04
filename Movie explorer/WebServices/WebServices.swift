@@ -44,21 +44,40 @@ class APIService: APIServiceProtocol {
             return
         }
         
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            if error != nil {
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjZThkODYwODM1NzQ5YzMzMGQyMWFiMThjOGFhYmM2NyIsIm5iZiI6MTc0MTA3NjE5Ni45NDU5OTk5LCJzdWIiOiI2N2M2YjZlNDY0NGVlYzcxMTRjMDdjYjIiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oof8BY76_OhjGGnNgb-6bPM2kQP6p26LTcRKAlSsS_g", forHTTPHeaderField: "Authorization") 
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Network error: \(error)")
+                completion(.failure(.requestFailed))
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print("Invalid response: \(response.debugDescription)")
                 completion(.failure(.requestFailed))
                 return
             }
             
             guard let data = data else {
+                print("No data received")
                 completion(.failure(.requestFailed))
                 return
+            }
+            
+            // Debugging: Print JSON response
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("Raw JSON Response: \(jsonString)")
             }
             
             do {
                 let decodedData = try JSONDecoder().decode(T.self, from: data)
                 completion(.success(decodedData))
             } catch {
+                print("Decoding error: \(error)")
                 completion(.failure(.decodingError))
             }
         }
