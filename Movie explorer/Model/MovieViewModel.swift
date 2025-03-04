@@ -9,20 +9,20 @@ import Foundation
 
 class MovieViewModel {
     private let apiService: APIServiceProtocol
-    
+
     var genres: [Genre] = []
     var movies: [Movie] = []
     var popularMovies: [Movie] = []
-    
+
     var onGenresFetched: (() -> Void)?
     var onMoviesFetched: (() -> Void)?
     var onPopularMoviesFetched: (() -> Void)?
     var onError: ((String) -> Void)?
-    
+
     init(apiService: APIServiceProtocol = APIService()) {
         self.apiService = apiService
     }
-    
+
     func loadGenres() {
         apiService.fetchGenres { [weak self] result in
             DispatchQueue.main.async {
@@ -31,12 +31,12 @@ class MovieViewModel {
                     self?.genres = genres
                     self?.onGenresFetched?()
                 case .failure(let error):
-                    self?.onError?("Error fetching genres: \(error)")
+                    self?.onError?("Error fetching genres: \(error.localizedDescription)")
                 }
             }
         }
     }
-    
+
     func loadMovies(categoryID: Int?) {
         apiService.fetchMovies(categoryID: categoryID) { [weak self] result in
             DispatchQueue.main.async {
@@ -45,12 +45,12 @@ class MovieViewModel {
                     self?.movies = movies
                     self?.onMoviesFetched?()
                 case .failure(let error):
-                    self?.onError?("Error fetching movies: \(error)")
+                    self?.onError?("Error fetching movies: \(error.localizedDescription)")
                 }
             }
         }
     }
-    
+
     func loadPopularMovies() {
         apiService.fetchPopularMovies { [weak self] result in
             DispatchQueue.main.async {
@@ -59,9 +59,15 @@ class MovieViewModel {
                     self?.popularMovies = movies
                     self?.onPopularMoviesFetched?()
                 case .failure(let error):
-                    self?.onError?("Error fetching popular movies: \(error)")
+                    self?.onError?("Error fetching popular movies: \(error.localizedDescription)")
                 }
             }
         }
+    }
+
+    func loadData(categoryID: Int?) {
+        loadGenres()
+        loadMovies(categoryID: categoryID)
+        loadPopularMovies()
     }
 }
