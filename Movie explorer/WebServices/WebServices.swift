@@ -59,29 +59,30 @@ class APIService: APIServiceProtocol {
 
     // MARK: - Fetch Movies by Category ID
     func fetchMovies(categoryID: Int?, completion: @escaping (Result<[Movie], Error>) -> Void) {
-        let urlString = "\(baseURL)discover/movie?api_key=\(apiKey)&access_token=\(accessToken)&with_genres=\(categoryID ?? 0)"
+        var urlString = "https://api.themoviedb.org/3/discover/movie?api_key=\(apiKey)"
+        
+        if let categoryID = categoryID {
+            urlString += "&with_genres=\(categoryID)"
+        }
         
         guard let url = URL(string: urlString) else {
-            completion(.failure(NSError(domain: "Invalid URL", code: 400, userInfo: nil)))
+            completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
             return
         }
-
+        
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
                 completion(.failure(error))
                 return
             }
-
             guard let data = data else {
-                completion(.failure(NSError(domain: "No data received", code: 404, userInfo: nil)))
+                completion(.failure(NSError(domain: "No data", code: 0, userInfo: nil)))
                 return
             }
-
+            
             do {
-                let decoder = JSONDecoder()
-                let response = try decoder.decode([String: [Movie]].self, from: data)
-                let movies = response["results"] ?? []
-                completion(.success(movies))
+                let decodedResponse = try JSONDecoder().decode(MovieResponse.self, from: data)
+                completion(.success(decodedResponse.results))
             } catch {
                 completion(.failure(error))
             }
@@ -90,29 +91,21 @@ class APIService: APIServiceProtocol {
 
     // MARK: - Fetch Popular Movies
     func fetchPopularMovies(completion: @escaping (Result<[Movie], Error>) -> Void) {
-        let urlString = "\(baseURL)movie/popular?api_key=\(apiKey)&access_token=\(accessToken)"
-        
-        guard let url = URL(string: urlString) else {
-            completion(.failure(NSError(domain: "Invalid URL", code: 400, userInfo: nil)))
-            return
-        }
+        let url = URL(string: "https://api.themoviedb.org/3/movie/popular?api_key=\(apiKey)")!
 
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
                 completion(.failure(error))
                 return
             }
-
             guard let data = data else {
-                completion(.failure(NSError(domain: "No data received", code: 404, userInfo: nil)))
+                completion(.failure(NSError(domain: "No data", code: 0, userInfo: nil)))
                 return
             }
-
+            
             do {
-                let decoder = JSONDecoder()
-                let response = try decoder.decode([String: [Movie]].self, from: data)
-                let popularMovies = response["results"] ?? []
-                completion(.success(popularMovies))
+                let decodedResponse = try JSONDecoder().decode(MovieResponse.self, from: data)
+                completion(.success(decodedResponse.results))
             } catch {
                 completion(.failure(error))
             }
