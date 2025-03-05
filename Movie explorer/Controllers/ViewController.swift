@@ -8,7 +8,7 @@
 import UIKit
 
 class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollectionViewDelegate {
-    
+
     static let reuseIdentifier = "CustomTableViewCell"
     
     private var collectionView: UICollectionView!
@@ -37,19 +37,10 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     
     var cellType: CellType = .category
     
-    // Separate variables for each collection view
-    var categoryCollectionViewItemWidth: CGFloat = 120
-    var categoryCollectionViewItemHeight: CGFloat = 100
-    
-    var movieListCollectionViewItemWidth: CGFloat = 120
-    var movieListCollectionViewItemHeight: CGFloat = 400
-    
-    var popularMoviesCollectionViewItemWidth: CGFloat = 130
-    var popularMoviesCollectionViewItemHeight: CGFloat = 400
-    
-    var categoryCollectionViewHeight: CGFloat = 100
-    var movieListCollectionViewHeight: CGFloat = 400
-    var popularMoviesCollectionViewHeight: CGFloat = 400
+    // Heights for each section
+    private let categoryListHeight: CGFloat = 100
+    private let movieListHeight: CGFloat = 225
+    private let popularMoviesHeight: CGFloat = 225
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -63,41 +54,58 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     private func setupCollectionView() {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 10
+        layout.minimumInteritemSpacing = 10
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.dataSource = self
         collectionView.delegate = self
+        collectionView.backgroundColor = .clear
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "CollectionCell")
         contentView.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: categoryCollectionViewHeight) // default height; will be updated in updateLayout()
+            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])
     }
     
     func updateLayout() {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 10
+        layout.minimumInteritemSpacing = 10
+
+        var newHeight: CGFloat = 100
+        
         switch cellType {
         case .category:
-            layout.itemSize = CGSize(width: categoryCollectionViewItemWidth, height: categoryCollectionViewItemHeight)
-            collectionView.heightAnchor.constraint(equalToConstant: categoryCollectionViewHeight).isActive = true
+            layout.itemSize = CGSize(width: 150, height: 100)
+            newHeight = categoryListHeight
         case .movieList:
-            layout.itemSize = CGSize(width: movieListCollectionViewItemWidth, height: movieListCollectionViewItemHeight)
-            collectionView.heightAnchor.constraint(equalToConstant: movieListCollectionViewHeight).isActive = true
+            layout.itemSize = CGSize(width: 140, height: 225)
+            newHeight = movieListHeight
         case .popularMovies:
-            layout.itemSize = CGSize(width: popularMoviesCollectionViewItemWidth, height: popularMoviesCollectionViewItemHeight)
-            collectionView.heightAnchor.constraint(equalToConstant: popularMoviesCollectionViewHeight).isActive = true
+            layout.itemSize = CGSize(width: 140, height: 225)
+            newHeight = popularMoviesHeight
         }
+        
         collectionView.setCollectionViewLayout(layout, animated: false)
+
+        collectionView.constraints.forEach { constraint in
+            if constraint.firstAttribute == .height {
+                collectionView.removeConstraint(constraint)
+            }
+        }
+        
+        let heightConstraint = collectionView.heightAnchor.constraint(equalToConstant: newHeight)
+        heightConstraint.priority = .defaultHigh
+        heightConstraint.isActive = true
     }
     
     // MARK: - UICollectionView DataSource
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch cellType {
         case .category:
@@ -110,7 +118,6 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        // Remove previous subviews (for cell reuse)
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionCell", for: indexPath)
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         
@@ -118,44 +125,32 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         case .category:
             let genre = genres[indexPath.row]
             cell.contentView.backgroundColor = .lightGray
-            let label = UILabel(frame: CGRect(x: 0, y: 0, width: categoryCollectionViewItemWidth, height: categoryCollectionViewItemHeight))
+            cell.layer.cornerRadius = 10
+            let label = UILabel(frame: cell.contentView.bounds)
             label.text = genre.name
             label.textColor = .black
             label.textAlignment = .center
             cell.contentView.addSubview(label)
             
-        case .movieList:
-            let movie = movies[indexPath.row]
+        case .movieList, .popularMovies:
+            let movie = (cellType == .movieList) ? movies[indexPath.row] : popularMovies[indexPath.row]
             cell.contentView.backgroundColor = .clear
-            if let posterPath = movie.posterPath,
-               let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
-                let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: movieListCollectionViewItemWidth, height: movieListCollectionViewItemHeight))
-                imageView.contentMode = .scaleAspectFill
-                //                imageView.clipsToBounds = true
-                imageView.loadImage(from: url)
-                cell.contentView.addSubview(imageView)
-            }
+            cell.layer.cornerRadius = 15
+            cell.clipsToBounds = true
             
-        case .popularMovies:
-            let movie = popularMovies[indexPath.row]
-            cell.contentView.backgroundColor = .clear
-            if let posterPath = movie.posterPath,
-               let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
-                let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: popularMoviesCollectionViewItemWidth, height: popularMoviesCollectionViewItemHeight))
+            if let posterPath = movie.posterPath, let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
+                let imageView = UIImageView(frame: cell.contentView.bounds)
                 imageView.contentMode = .scaleAspectFill
-                //                imageView.clipsToBounds = true
+                imageView.layer.cornerRadius = 15
+                imageView.clipsToBounds = true
                 imageView.loadImage(from: url)
                 cell.contentView.addSubview(imageView)
             }
         }
         return cell
     }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // Handle item selection if needed
-        
-    }
 }
+
 
 extension UIImageView {
     func loadImage(from url: URL) {
@@ -174,8 +169,8 @@ protocol GenreTableViewCellDelegate: AnyObject {
 }
 
 
-class ViewController: UIViewController, GenreTableViewCellDelegate {
-    
+class ViewController: UIViewController {
+
     private let movieViewModel = MovieViewModel()
     private var tableView: UITableView!
     
@@ -188,17 +183,15 @@ class ViewController: UIViewController, GenreTableViewCellDelegate {
     }
     
     private func setupViewModel() {
-        movieViewModel.onGenresFetched = { [weak self] in
-            self?.tableView.reloadData()
-        }
         movieViewModel.onMoviesFetched = { [weak self] in
-            self?.tableView.reloadData()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self?.tableView.reloadData()
+            }
         }
         movieViewModel.onPopularMoviesFetched = { [weak self] in
-            self?.tableView.reloadData()
-        }
-        movieViewModel.onError = { [weak self] errorMessage in
-            self?.showErrorAlert(message: errorMessage)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self?.tableView.reloadData()
+            }
         }
     }
     
@@ -210,10 +203,7 @@ class ViewController: UIViewController, GenreTableViewCellDelegate {
         tableView.dataSource = self
         tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseIdentifier)
         view.addSubview(tableView)
-        setupConstraints()
-    }
-    
-    private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -221,21 +211,7 @@ class ViewController: UIViewController, GenreTableViewCellDelegate {
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
-    
-    private func showErrorAlert(message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
-    }
-    
-    // Genre selection delegate method
-    func didSelectGenre(genre: Genre) {
-        print("Selected Genre: \(genre.name)")
-        movieViewModel.loadMovies(categoryID: genre.id)
-    }
 }
-
-// MARK: - UITableViewDataSource & UITableViewDelegate
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
@@ -244,44 +220,28 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
         let cell = tableView.dequeueReusableCell(withIdentifier: CustomTableViewCell.reuseIdentifier, for: indexPath) as! CustomTableViewCell
         
         if indexPath.row == 0 {
             cell.cellType = .category
             cell.genres = movieViewModel.genres
-            cell.categoryCollectionViewHeight = 100
-            cell.categoryCollectionViewItemWidth = 150
-            cell.categoryCollectionViewItemHeight = 100
         } else if indexPath.row == 1 {
             cell.cellType = .movieList
             cell.movies = movieViewModel.movies
-            cell.movieListCollectionViewHeight = 400
-            cell.movieListCollectionViewItemWidth = 120
-            cell.movieListCollectionViewItemHeight = 400
         } else if indexPath.row == 2 {
             cell.cellType = .popularMovies
             cell.popularMovies = movieViewModel.popularMovies
-            cell.popularMoviesCollectionViewHeight = 400
-            cell.popularMoviesCollectionViewItemWidth = 120
-            cell.popularMoviesCollectionViewItemHeight = 400
         }
-        cell.backgroundColor = .red
         
-        cell.updateLayout()
+        DispatchQueue.main.async {
+            cell.updateLayout()
+        }
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        switch indexPath.row {
-        case 0:
-            return 200 // Height for Category row
-        case 1:
-            return 400 // Height for Movie List row (collection view + padding)
-        case 2:
-            return 400 // Height for Popular Movies row (collection view + padding)
-        default:
-            return 0
-        }
+        if indexPath.row == 0 { return 100 } // Small category list
+        return 225 // Large for movie list and popular movies
     }
 }
+
