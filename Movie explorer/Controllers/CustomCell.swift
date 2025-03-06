@@ -137,17 +137,18 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         switch cellType {
         case .category:
             let genre = genres[indexPath.row]
-            cell.contentView.backgroundColor = .lightGray
+            cell.contentView.backgroundColor = .clear
             cell.layer.cornerRadius = 10
             let label = UILabel(frame: cell.contentView.bounds)
             label.text = genre.name
-            label.textColor = .black
+            label.textColor = .white
             label.textAlignment = .center
             cell.contentView.addSubview(label)
             
         case .movieList, .popularMovies:
             let movie = (cellType == .movieList) ? movies[indexPath.row] : popularMovies[indexPath.row]
             cell.contentView.backgroundColor = .clear
+            cell.backgroundColor = .clear
             cell.layer.cornerRadius = 15
             cell.clipsToBounds = true
             

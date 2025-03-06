@@ -60,7 +60,7 @@ class ViewController: UIViewController {
     private func setupDataWithTableView() {
         tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = .yellow//UIColor(hexString: "151515")
+        tableView.backgroundColor = UIColor(hexString: "151515")
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseIdentifier)
@@ -111,6 +111,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         DispatchQueue.main.async {
             cell.updateLayout()
         }
+        cell.backgroundColor = .clear
         
         return cell
     }
