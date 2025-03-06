@@ -60,6 +60,8 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         collectionView.delegate = self
         collectionView.backgroundColor = .clear
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "CollectionCell")
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        collectionView.showsHorizontalScrollIndicator = false
         contentView.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
@@ -139,22 +141,22 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         case .category:
             let genre = genres[indexPath.row]
             let label = UILabel()
-            label.frame = CGRect(x: 16, y: 20, width: 120, height: 40)
+            label.frame = CGRect(x: 0, y: 20, width: 120, height: 40)
 
             if selectedCategoryIndex == indexPath.row {
                 label.text = genre.name
                 label.textColor = .white
-                label.backgroundColor = .red
-                label.font = .systemFont(ofSize: 14, weight: .bold)
+                label.backgroundColor = .systemPink
+                label.font = .systemFont(ofSize: 12, weight: .bold)
             }else{
                 label.text = genre.name
                 label.textColor = .gray
                 label.backgroundColor = .clear
-                label.font = .systemFont(ofSize: 14, weight: .regular)
+                label.font = .systemFont(ofSize: 12, weight: .regular)
             }
             
             label.textAlignment = .center
-            label.layer.cornerRadius = 10
+            label.layer.cornerRadius = 20
             label.layer.masksToBounds = true
             label.minimumScaleFactor = 0.5
             cell.contentView.addSubview(label)
