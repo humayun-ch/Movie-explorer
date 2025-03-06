@@ -34,7 +34,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     
     var cellType: CellType = .category
     
-    private let categoryListHeight: CGFloat = 40
+    private let categoryListHeight: CGFloat = 80
     private let movieListHeight: CGFloat = 225
     private let titleViewHeight: CGFloat = 44
     private let popularMoviesHeight: CGFloat = 225
@@ -87,7 +87,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         
         switch cellType {
         case .category:
-            layout.itemSize = CGSize(width: 150, height: 40)
+            layout.itemSize = CGSize(width: 150, height: 80)
             newHeight = categoryListHeight
         case .movieList:
             layout.itemSize = CGSize(width: 140, height: 225)
@@ -139,18 +139,18 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         case .category:
             let genre = genres[indexPath.row]
             let label = UILabel()
-            label.frame = CGRect(x: 0, y: 0, width: 120, height: 40)
+            label.frame = CGRect(x: 16, y: 20, width: 120, height: 40)
 
             if selectedCategoryIndex == indexPath.row {
                 label.text = genre.name
                 label.textColor = .white
                 label.backgroundColor = .red
-                label.font = .systemFont(ofSize: 18, weight: .bold)
+                label.font = .systemFont(ofSize: 14, weight: .bold)
             }else{
                 label.text = genre.name
                 label.textColor = .gray
                 label.backgroundColor = .clear
-                label.font = .systemFont(ofSize: 18, weight: .regular)
+                label.font = .systemFont(ofSize: 14, weight: .regular)
             }
             
             label.textAlignment = .center
