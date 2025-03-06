@@ -36,7 +36,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     
     private let categoryListHeight: CGFloat = 80
     private let movieListHeight: CGFloat = 225
-    private let titleViewHeight: CGFloat = 44
+    private let titleViewHeight: CGFloat = 80
     private let popularMoviesHeight: CGFloat = 225
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -98,7 +98,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
             layout.itemSize = CGSize(width: 140, height: 225)
             newHeight = popularMoviesHeight
         case .titleView:
-            layout.itemSize = CGSize(width: 200, height: 441)
+            layout.itemSize = CGSize(width: 200, height: 80)
             newHeight = titleViewHeight
         }
         
@@ -180,7 +180,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
                 cell.contentView.addSubview(imageView)
             }
         case .titleView:
-            let label = UILabel(frame: cell.contentView.bounds)
+            let label = UILabel(frame: CGRect(x: 0, y: 20, width: 200, height: 40))
             label.text = "Popular Movies"
             label.textColor = .white
             label.textAlignment = .left

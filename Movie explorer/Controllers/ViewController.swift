@@ -13,7 +13,6 @@ class ViewController: UIViewController {
     private var tableView: UITableView!
     private var moviesLabel: UILabel!
 
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupMoviesLabel()
@@ -76,7 +75,7 @@ class ViewController: UIViewController {
     }
 }
 
-//Delegate extension
+//MARK: - Delegate extension
 extension ViewController: CustomTableViewCellDelegate {
     func didSelectGenre(_ genre: Genre) {
         movieViewModel.loadMovies(categoryID: genre.id)
@@ -88,7 +87,7 @@ extension ViewController: CustomTableViewCellDelegate {
     }
 }
 
-//Table view extension
+//MARK: - Table view extension
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -119,7 +118,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.row == 0 { return 80 }
-        if indexPath.row == 2 { return 44 }
+        if indexPath.row == 2 { return 80 }
         return 225
     }
 }
