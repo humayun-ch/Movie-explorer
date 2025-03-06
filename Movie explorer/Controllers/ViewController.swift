@@ -7,9 +7,15 @@
 
 import UIKit
 
+protocol CustomTableViewCellDelegate: AnyObject {
+    func didSelectGenre(_ genre: Genre)
+}
+
 class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollectionViewDelegate {
 
     static let reuseIdentifier = "CustomTableViewCell"
+    
+    weak var delegate: CustomTableViewCellDelegate?
     
     private var collectionView: UICollectionView!
     
@@ -161,6 +167,14 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         }
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if cellType == .category {
+            let selectedGenre = genres[indexPath.row]
+            delegate?.didSelectGenre(selectedGenre)
+            print(genres[indexPath.row])
+        }
+    }
 }
 
 
@@ -241,6 +255,17 @@ class ViewController: UIViewController {
     }
 }
 
+extension ViewController: CustomTableViewCellDelegate {
+    func didSelectGenre(_ genre: Genre) {
+        movieViewModel.loadMovies(categoryID: genre.id)
+        movieViewModel.onMoviesFetched = { [weak self] in
+            DispatchQueue.main.async {
+                self?.tableView.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .fade)
+            }
+        }
+    }
+}
+
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -252,6 +277,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         
         if indexPath.row == 0 {
             cell.configure(with: .category, genres: movieViewModel.genres)
+            cell.delegate = self
         } else if indexPath.row == 1 {
             cell.configure(with: .movieList, movies: movieViewModel.movies)
         } else if indexPath.row == 2 {
