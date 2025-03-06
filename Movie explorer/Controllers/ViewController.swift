@@ -11,13 +11,32 @@ class ViewController: UIViewController {
 
     private let movieViewModel = MovieViewModel()
     private var tableView: UITableView!
+    private var moviesLabel: UILabel!
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Movies"
-        setupViews()
+        setupMoviesLabel()
+        setupDataWithTableView()
         setupViewModel()
         movieViewModel.loadData(categoryID: 28)
+    }
+    
+    private func setupMoviesLabel() {
+        moviesLabel = UILabel()
+        moviesLabel.text = "Movies"
+        moviesLabel.font = UIFont.boldSystemFont(ofSize: 32)
+        moviesLabel.textAlignment = .left
+        moviesLabel.textColor = .white
+        
+        moviesLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(moviesLabel)
+        view.backgroundColor = .purple.withAlphaComponent(0.5)
+        
+        NSLayoutConstraint.activate([
+            moviesLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            moviesLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24)
+        ])
     }
     
     private func setupViewModel() {
@@ -38,20 +57,20 @@ class ViewController: UIViewController {
         }
     }
     
-    private func setupViews() {
-        view.backgroundColor = .white
+    private func setupDataWithTableView() {
         tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.backgroundColor = .yellow//UIColor(hexString: "151515")
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: CustomTableViewCell.reuseIdentifier)
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.topAnchor.constraint(equalTo: moviesLabel.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 }
