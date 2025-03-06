@@ -59,7 +59,7 @@ class APIService: APIServiceProtocol {
 
     // MARK: - Fetch Movies by Category ID
     func fetchMovies(categoryID: Int?, completion: @escaping (Result<[Movie], Error>) -> Void) {
-        var urlString = "https://api.themoviedb.org/3/discover/movie?api_key=\(apiKey)"
+        var urlString = "\(baseURL)discover/movie?api_key=\(apiKey)"
         
         if let categoryID = categoryID {
             urlString += "&with_genres=\(categoryID)"
@@ -91,7 +91,7 @@ class APIService: APIServiceProtocol {
 
     // MARK: - Fetch Popular Movies
     func fetchPopularMovies(completion: @escaping (Result<[Movie], Error>) -> Void) {
-        let url = URL(string: "https://api.themoviedb.org/3/movie/popular?api_key=\(apiKey)")!
+        let url = URL(string: "\(baseURL)movie/popular?api_key=\(apiKey)")!
 
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
