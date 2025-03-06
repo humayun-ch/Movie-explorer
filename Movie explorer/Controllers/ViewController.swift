@@ -20,6 +20,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     enum CellType {
         case category
         case movieList
+        case titleView
         case popularMovies
     }
     
@@ -27,6 +28,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     
     private let categoryListHeight: CGFloat = 100
     private let movieListHeight: CGFloat = 225
+    private let titleViewHeight: CGFloat = 44
     private let popularMoviesHeight: CGFloat = 225
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -85,6 +87,9 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         case .popularMovies:
             layout.itemSize = CGSize(width: 140, height: 225)
             newHeight = popularMoviesHeight
+        case .titleView:
+            layout.itemSize = CGSize(width: 140, height: 441)
+            newHeight = titleViewHeight
         }
         
         collectionView.setCollectionViewLayout(layout, animated: false)
@@ -113,6 +118,8 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
             return movies.count
         case .popularMovies:
             return popularMovies.count
+        case .titleView:
+            return 1
         }
     }
     
@@ -145,6 +152,12 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
                 imageView.loadImage(from: url)
                 cell.contentView.addSubview(imageView)
             }
+        case .titleView:
+            let label = UILabel(frame: cell.contentView.bounds)
+            label.text = "Popular Movies"
+            label.textColor = .white
+            label.textAlignment = .left
+            cell.contentView.addSubview(label)
         }
         return cell
     }
@@ -231,7 +244,7 @@ class ViewController: UIViewController {
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+        return 4
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -242,6 +255,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         } else if indexPath.row == 1 {
             cell.configure(with: .movieList, movies: movieViewModel.movies)
         } else if indexPath.row == 2 {
+            cell.configure(with: .titleView, popularMovies: movieViewModel.popularMovies)
+        } else if indexPath.row == 3 {
             cell.configure(with: .popularMovies, popularMovies: movieViewModel.popularMovies)
         }
         
@@ -253,8 +268,9 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.row == 0 { return 100 } // Small category list
-        return 225 // Large for movie list and popular movies
+        if indexPath.row == 0 { return 100 }
+        if indexPath.row == 2 { return 44 }
+        return 225
     }
 }
 
