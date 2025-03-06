@@ -13,21 +13,9 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     
     private var collectionView: UICollectionView!
     
-    var genres: [Genre] = [] {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
-    var movies: [Movie] = [] {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
-    var popularMovies: [Movie] = [] {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
+    var genres: [Genre] = []
+    var movies: [Movie] = []
+    var popularMovies: [Movie] = []
     
     enum CellType {
         case category
@@ -37,7 +25,6 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     
     var cellType: CellType = .category
     
-    // Heights for each section
     private let categoryListHeight: CGFloat = 100
     private let movieListHeight: CGFloat = 225
     private let popularMoviesHeight: CGFloat = 225
@@ -72,6 +59,14 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         ])
     }
     
+    func configure(with cellType: CellType, genres: [Genre] = [], movies: [Movie] = [], popularMovies: [Movie] = []) {
+        self.cellType = cellType
+        self.genres = genres
+        self.movies = movies
+        self.popularMovies = popularMovies
+        updateLayout()
+    }
+    
     func updateLayout() {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -103,6 +98,10 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         let heightConstraint = collectionView.heightAnchor.constraint(equalToConstant: newHeight)
         heightConstraint.priority = .defaultHigh
         heightConstraint.isActive = true
+        
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+        }
     }
     
     // MARK: - UICollectionView DataSource
@@ -154,15 +153,26 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
 
 extension UIImageView {
     func loadImage(from url: URL) {
+        let cacheKey = NSString(string: url.absoluteString)
+        if let cachedImage = imageCache.object(forKey: cacheKey) {
+            self.image = cachedImage
+            return
+        }
+        
+        self.image = nil
+        
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
                 DispatchQueue.main.async {
+                    imageCache.setObject(image, forKey: cacheKey)
                     self.image = image
                 }
             }
         }
     }
 }
+
+let imageCache = NSCache<NSString, UIImage>()
 
 protocol GenreTableViewCellDelegate: AnyObject {
     func didSelectGenre(genre: Genre)
@@ -183,6 +193,11 @@ class ViewController: UIViewController {
     }
     
     private func setupViewModel() {
+        movieViewModel.onGenresFetched = { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self?.tableView.reloadData()
+            }
+        }
         movieViewModel.onMoviesFetched = { [weak self] in
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self?.tableView.reloadData()
@@ -223,19 +238,17 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: CustomTableViewCell.reuseIdentifier, for: indexPath) as! CustomTableViewCell
         
         if indexPath.row == 0 {
-            cell.cellType = .category
-            cell.genres = movieViewModel.genres
+            cell.configure(with: .category, genres: movieViewModel.genres)
         } else if indexPath.row == 1 {
-            cell.cellType = .movieList
-            cell.movies = movieViewModel.movies
+            cell.configure(with: .movieList, movies: movieViewModel.movies)
         } else if indexPath.row == 2 {
-            cell.cellType = .popularMovies
-            cell.popularMovies = movieViewModel.popularMovies
+            cell.configure(with: .popularMovies, popularMovies: movieViewModel.popularMovies)
         }
         
         DispatchQueue.main.async {
             cell.updateLayout()
         }
+        
         return cell
     }
     
