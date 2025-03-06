@@ -1,0 +1,16 @@
+//
+//  QA.xcconfig
+//  Movie explorer
+//
+//  Created by Humayun Kabir on 6/3/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// Local variable
+ENVIRONMENT = QA
+PRODUCT_BUNDLE_IDENTIFIER = com.MovieExplorer.$(ENVIRONMENT)
+INFOPLIST_KEY_CFBundleDisplayName = $(ENVIRONMENT)
+INFOPLIST_FILE = $(PRODUCT_NAME)/PLIST/$(ENVIRONMENT).plist
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_${ENVIRONMENT}

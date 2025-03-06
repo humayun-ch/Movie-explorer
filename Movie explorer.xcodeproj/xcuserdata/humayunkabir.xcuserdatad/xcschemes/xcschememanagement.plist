@@ -4,10 +4,40 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Movie explorer.xcscheme_^#shared#^_</key>
+		<key>Development.xcscheme_^#shared#^_</key>
 		<dict>
+			<key>isShown</key>
+			<true/>
 			<key>orderHint</key>
 			<integer>0</integer>
+		</dict>
+		<key>Production.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>QA.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>874043672D76E76C0017E467</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>8740437D2D76E76E0017E467</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>874043872D76E76E0017E467</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>
