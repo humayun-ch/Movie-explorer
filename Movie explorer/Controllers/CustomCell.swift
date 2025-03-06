@@ -19,6 +19,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     weak var delegate: CustomTableViewCellDelegate?
     
     private var collectionView: UICollectionView!
+    private var selectedCategoryIndex: Int = 0
     
     var genres: [Genre] = []
     var movies: [Movie] = []
@@ -33,7 +34,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
     
     var cellType: CellType = .category
     
-    private let categoryListHeight: CGFloat = 100
+    private let categoryListHeight: CGFloat = 40
     private let movieListHeight: CGFloat = 225
     private let titleViewHeight: CGFloat = 44
     private let popularMoviesHeight: CGFloat = 225
@@ -86,7 +87,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         
         switch cellType {
         case .category:
-            layout.itemSize = CGSize(width: 150, height: 100)
+            layout.itemSize = CGSize(width: 150, height: 40)
             newHeight = categoryListHeight
         case .movieList:
             layout.itemSize = CGSize(width: 140, height: 225)
@@ -95,7 +96,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
             layout.itemSize = CGSize(width: 140, height: 225)
             newHeight = popularMoviesHeight
         case .titleView:
-            layout.itemSize = CGSize(width: 140, height: 441)
+            layout.itemSize = CGSize(width: 200, height: 441)
             newHeight = titleViewHeight
         }
         
@@ -137,13 +138,29 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
         switch cellType {
         case .category:
             let genre = genres[indexPath.row]
-            cell.contentView.backgroundColor = .clear
-            cell.layer.cornerRadius = 10
-            let label = UILabel(frame: cell.contentView.bounds)
-            label.text = genre.name
-            label.textColor = .white
+            let label = UILabel()
+            label.frame = CGRect(x: 0, y: 0, width: 120, height: 40)
+
+            if selectedCategoryIndex == indexPath.row {
+                label.text = genre.name
+                label.textColor = .white
+                label.backgroundColor = .red
+                label.font = .systemFont(ofSize: 18, weight: .bold)
+            }else{
+                label.text = genre.name
+                label.textColor = .gray
+                label.backgroundColor = .clear
+                label.font = .systemFont(ofSize: 18, weight: .regular)
+            }
+            
             label.textAlignment = .center
+            label.layer.cornerRadius = 10
+            label.layer.masksToBounds = true
+            label.minimumScaleFactor = 0.5
             cell.contentView.addSubview(label)
+            cell.contentView.backgroundColor = .clear
+
+
             
         case .movieList, .popularMovies:
             let movie = (cellType == .movieList) ? movies[indexPath.row] : popularMovies[indexPath.row]
@@ -165,6 +182,7 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
             label.text = "Popular Movies"
             label.textColor = .white
             label.textAlignment = .left
+            label.font = .systemFont(ofSize: 20, weight: .bold)
             cell.contentView.addSubview(label)
         }
         return cell
@@ -175,6 +193,8 @@ class CustomTableViewCell: UITableViewCell, UICollectionViewDataSource, UICollec
             let selectedGenre = genres[indexPath.row]
             delegate?.didSelectGenre(selectedGenre)
             print(genres[indexPath.row])
+            selectedCategoryIndex = indexPath.row
+            collectionView.reloadData()
         }
     }
 }
